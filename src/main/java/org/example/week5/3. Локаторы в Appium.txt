@@ -1,0 +1,15 @@
+Locators:
+• Xpath
+• Id
+• Class
+• Name
+• UI Automation id он может пригодиться, если в стандартном дереве не видно какого-то элемента
+• Css (mobile web only) будут работать только при автоматизации мобильных веб-приложений
+• Accessibility id (ios only) Если у вас, например есть список фильмов и как получить конкретный, вы можете
+найти его по названию, не создавая циклы самостоятельно.
+
+     def get_movie_by_title(self, movie_title):
+         title_locator = {
+             config.ANDROID: (MobileBy.ACCESSIBILITY_ID, movie_title),
+             config.IOS: (MobileBy.ACCESSIBILITY_ID, movie_title)
+         }

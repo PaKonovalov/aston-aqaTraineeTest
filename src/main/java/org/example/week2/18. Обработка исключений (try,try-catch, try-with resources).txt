@@ -1,0 +1,28 @@
+1. Блок try/catch
+    try {
+       // Защищенный код
+    }catch(НазваниеИсключения e1) {
+       // Блок catch
+    }
+
+2. throws/throw
+    public class Test {
+
+       public void deposit(double amount) throws RemoteException {
+          // Реализация метода
+          throw new RemoteException();
+       }
+       // Остаток определения класса
+    }
+
+3. try-with-resources
+    В норме, при использовании различных видов ресурсов, таких как потоки, соединения и др.,
+    нам предстоит закрыть их непосредственно при использовании блока finally.
+
+    Синтаксис
+    try(FileReader fr = new FileReader("Путь к файлу")) {
+       // использование ресурса
+       }catch() {
+          // тело catch
+       }
+    }

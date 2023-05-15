@@ -1,0 +1,67 @@
+Как строится фрэймворк (по запросам) для тестирования по шагам
+как строится тест-кейс в плане автоматизации
+
+1. есть класс RequestSpecificationCreator, в котором му прописываем RequestSpecification
+
+Пример:
+public static RequestSpecification getReqSpec(HostSvc hostSvc, String path) {
+        RequestSpecification requestSpecification = new RequestSpecBuilder()
+                .setBaseUri(getSvcHost(hostSvc))
+                .setBasePath(path)
+                .setContentType(ContentType.JSON)
+                .build();
+
+        log.info("Сформирована спецификация для запроса");
+
+        return requestSpecification;
+    }
+
+2. далее в тесте мы прописываем Specification
+
+Пример:
+specification = RequestSpecificationCreator
+                .getReqSpec(REGISTRATION_SVC, GET_USER_ADDRESS_API, superUser.getId(), Map.of(AUTHORIZATION,
+                        PREFIX_BEARER + accessToken));
+
+3. в тестовом классе прописываем данные для RequestUtil
+
+Пример:
+List<CreditUserOffersResponse> actRes = GetRequestUtil.doGetReturnList(params,
+                                                                       HTTP_OK,
+                                                                       specification,
+                                                                       CreditUserOffersResponse[].class);
+
+4. RequestUtil выглядит следующим образом:
+
+Пример:
+public static <T> List<T> doGetReturnList(Map<String, ?> params,
+                                              int httpStatusCode,
+                                              RequestSpecification specification,
+                                              Class<T[]> clazz) {
+        return List.of(given()
+                .params(params)
+                .spec(specification)
+                .when()
+                .log().all()
+                .get()
+                .then().statusCode(httpStatusCode)
+                .log().all()
+                .extract().body()
+                .as(clazz));
+    }
+
+    public static <T> T doGetReturnItem(RequestSpecification specification,
+                                        int httpStatusCode,
+                                        Class<T> clazz) {
+        return given()
+                .spec(specification)
+                .when()
+                .log().all()
+                .get()
+                .then().statusCode(httpStatusCode)
+                .log().all()
+                .extract().body()
+                .as(clazz);
+    }
+
+5. если необходимо распарсить тело ответа создаем классы с POJO классы

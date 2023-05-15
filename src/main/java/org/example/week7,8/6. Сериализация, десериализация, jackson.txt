@@ -1,0 +1,231 @@
+Jackson библиотека, которая конвертирует строки JSON и простые объекты Java
+(англ POJO — Plain Old Java Object). Он также поддерживает многие другие форматы данных, такие как CSV,
+YML и XML.
+
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+
+у Jackson есть три основных пакета: Streaming, Databind и Annotations:
+
+    1. Потоковое API. Это самый быстрый подход из трех и с наименьшими накладными расходами. Он читает и
+    записывает содержимое JSON в виде дискретных событий. API предоставляет JsonParser, который считывает
+    JSON в POJO, и JsonGenerator, который записывает POJO в JSON.
+
+    2. Модель дерева. Модель дерева создает в памяти древовидное представление документа JSON.
+    ObjectMapper отвечает за построение дерева из узлов JsonNode.
+
+    3. Привязка данных. позволяет нам выполнять преобразование между документами POJO и JSON с помощью средств
+    доступа к свойствам или с помощью аннотаций. Он предлагает два типа привязки:
+
+       - Простая привязка данных, которая преобразует JSON в Java Maps, Lists, Strings, Numbers, Booleans,
+       null объекты и обратно.
+
+       - Полная привязка данных, которая преобразует JSON в любой класс Java и из него.
+
+ObjectMapper — наиболее часто используемая часть библиотеки Jackson, так как является самым простым способом
+преобразования между POJO и JSON
+
+ObjectMapper определяет, какое поле JSON соответствует какому полю POJO, заключается в сопоставлении имен полей
+JSON с именами геттеров и сеттеров в POJO.
+
+POJO в JSON - сериализация, наоборот десериализация.
+
+Базовое преобразование POJO/JSON с использованием ObjectMapper:
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class Employee {
+        private String firstName;
+        private String lastName;
+        private int age;
+    }
+
+    преобразование POJO в строку JSON (метод .writeValueAsString()):
+
+    public class JacksonTest {
+      ObjectMapper objectMapper = new ObjectMapper();
+      @Test
+      void pojoToJsonString() throws JsonProcessingException {
+            Employee employee = new Employee("Mark", "James", 20);
+            String json = objectMapper.writeValueAsString(employee);
+            System.out.println(json);
+        }
+    }
+
+Преобразование строки JSON в объект Employee с помощью ObjectMapper (метод .readValue()):
+
+    public class JacksonTest {
+      ...
+      @Test
+      void jsonStringToPojo() throws JsonProcessingException {
+            String employeeJson = "{\n" +
+                    " \"firstName\" : \"Jalil\",\n" +
+                    " \"lastName\" : \"Jarjanazy\",\n" +
+                    " \"age\" : 30\n" +
+                    "}";
+            Employee employee = objectMapper.readValue(employeeJson, Employee.class);
+            assertThat(employee.getFirstName()).isEqualTo("Jalil");
+        }
+    }
+
+Создание POJO из файла JSON:
+
+    {
+      "firstName":"Homer",
+      "lastName":"Simpson",
+      "age":44
+    }
+
+    public class JacksonTest {
+    	...
+    	@Test
+    	void jsonFileToPojo() throws IOException {
+    	    File file = new File("src/test/resources/employee.json");
+    	    Employee employee = objectMapper.readValue(file, Employee.class);
+    	    assertThat...
+    	}
+    }
+
+Создание POJO из массива байт в формате JSON:
+
+    public class JacksonTest {
+    	...
+    	@Test
+    	void byteArrayToPojo() throws IOException {
+    	    String employeeJson = "{\n" +
+    	            " \"firstName\" : \"Jalil\",\n" +
+    	            " \"lastName\" : \"Jarjanazy\",\n" +
+    	            " \"age\" : 30\n" +
+    	            "}";
+    	    Employee employee = objectMapper.readValue(employeeJson.getBytes(), Employee.class);
+    	    assertThat(employee.getFirstName()).isEqualTo("Jalil");
+    	}
+    }
+
+Создание списка POJO из JSON:
+
+    [
+      {
+        "firstName":"Marge",
+        "lastName":"Simpson",
+        "age":33
+      },
+      {
+        "firstName":"Homer",
+        "lastName":"Simpson",
+        "age":44
+      }
+    ]
+
+    public class JacksonTest {
+    	...
+    	@Test
+    	void fileToListOfPojos() throws IOException {
+    	    File file = new File("src/test/resources/employeeList.json");
+    	    List<Employee> employeeList = objectMapper.readValue(file, new TypeReference<>(){});
+    	    assertThat(...;
+    	}
+    }
+
+Создание Map из JSON:
+
+    public class JacksonTest {
+    	...
+    	@Test
+    	void fileToMap() throws IOException {
+    	    File file = new File("src/test/resources/employee.json");
+    	    Map<String, Object> employee = objectMapper.readValue(file, new TypeReference<>(){});
+    	    assertThat(...
+    	}
+    }
+
+Игнорирование неизвестных полей JSON:
+
+    {
+      "firstName":"Homer",
+      "lastName":"Simpson",
+      "age":44,
+      "department": "IT"
+    }
+
+    public class JacksonTest {
+    	...
+    	@Test
+    	void fileToPojoWithUnknownProperties() throws IOException {
+    	    File file = new File("src/test/resources/employeeWithUnknownProperties.json");
+      	    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    	    Employee employee = objectMapper.readValue(file, Employee.class);
+    	    assertThat(...
+    	}
+    }
+
+Работа с датами in Jackson
+
+Для этого нам нужно добавить в Jackson дополнительный модуль, чтобы он мог обрабатывать LocalDate.
+
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+
+    public class Order {
+        private int id;
+        @JsonFormat(pattern = "dd/MM/yyyy")
+        private LocalDate date;
+    }
+
+    @Test
+    void orderToJsonWithDate() throws JsonProcessingException {
+        Order order = new Order(1, LocalDate.of(2023, 1, 1));
+
+        String json = objectMapper.writeValueAsString(order);
+
+        System.out.println(json);
+
+JSON в дату:
+
+    {
+      "id" : 1,
+      "date" : "30/04/2000"
+    }
+
+    public class JacksonTest {
+    	...
+    	@Test
+    	void fileToOrder() throws IOException {
+    	    File file = new File("src/test/resources/order.json");
+    	    Order order = objectMapper.readValue(file, Order.class);
+    	    assertThat(...
+    	}
+    }
+
+Аннотации Jackson.
+
+    @JsonSetter - сопоставить поле в строке JSON с полем в POJO, где их имена не совпадают.
+          @JsonSetter("carBrand")
+            private String brand;
+
+    @JsonAnySetter - JSON содержит некоторые поля, не объявленные в POJO. Он используется с сеттером, который
+    вызывается для каждого нераспознанного поля.
+
+Аннотации записи. влияют на то, как Jackson преобразует POJO в JSON:
+
+    @JsonGetter - когда мы хотим сопоставить поле POJO с полем JSON, используя другое имя.
+        @JsonGetter("catName")
+            public String getName() {
+                return name;
+            }
+
+    @JsonAnyGetter - позволяет нам использовать объект Map как источник свойств JSON
+        @JsonAnyGetter
+        Map<String, String> map = Map.of("name", "Jack", "surname", "wolfskin");
+
+Аннотации чтения и записию влияют как на чтение, так и на запись JSON.
+
+    @JsonIgnore - Поле с аннотацией игнорируется как при записи, так и при чтении JSON.
+
+
+
+
+

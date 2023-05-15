@@ -1,0 +1,29 @@
+Протокол WebSocket предусматривает способ установления двусторонней связи между клиентом и сервером.
+
+Использует TCP-соединение
+
+WebSocket начинается с HTTP-запроса, который использует HTTP-заголовок Upgrade для обновления или для перехода
+на протокол WebSocket.
+
+Запрос:
+    ! GET /spring-websocket-portfolio/portfolio HTTP/1.1
+    ! Host: localhost:8080
+    ! Upgrade: websocket
+    Connection: Upgrade
+    ! Sec-WebSocket-Key: Uc9l9TMkWGbHFD2qnFHltg==
+    ! Sec-WebSocket-Protocol: v10.stomp, v11.stomp
+    ! Sec-WebSocket-Version: 13
+    Origin: http://localhost:8080
+
+Ответ:
+    ! HTTP/1.1 101 Switching Protocols
+    ! Upgrade: websocket
+    ! Connection: Upgrade
+    ! Sec-WebSocket-Accept: 1qVdfYHU9hPOl4JYYNXF623Gzn0=
+    ! Sec-WebSocket-Protocol: v10.stomp
+
+После успешного подтверждения установления связи сокет TCP, лежащий в основе запроса на обновление HTTP, остается
+открытым, чтобы клиент и сервер могли продолжать отправлять и получать сообщения.
+
+
+

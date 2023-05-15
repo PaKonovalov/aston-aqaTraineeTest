@@ -1,0 +1,30 @@
+@JsonIgnore — ставится над элементом, который нужно игнорировать при сериализации/десериализации
+
+@JsonFormat — позволяет задать формат сериализованных данных:
+@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	public Date createdDate = new Date();
+
+@JsonProperty — позволяет изменить имя свойства, в которое будет сериализировано поле.
+ Еще этой аннотацией можно помечать методы, и их возвращаемое значение будет преобразовано
+ в JSON-свойство при сериализации:
+
+class Book {
+	@JsonProperty("name")
+	public String title;
+	public String author;
+	public int pages;
+
+	@JsonProperty("quotedTitle")
+	public String getQuotedTitle() {
+    	    return "«" + title + "»";
+	}
+}
+
+@JsonPropertyOrder — позволяет задать порядок сериализации полей:
+@JsonPropertyOrder({"author", "title", "pages"})
+class Book {
+	public String title;
+	public String author;
+	public int pages;
+}
+

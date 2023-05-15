@@ -1,0 +1,123 @@
+1. Обзор
+Библиотека REST-assured предоставляет поддержку для тестирования REST API, обычно в формате JSON.
+Иногда может быть желательно, без детального анализа ответа, сначала узнать, соответствует ли тело JSON
+определенному формату JSON.
+
+
+2. Настройка
+необходимо включить модуль json-schema-validator в pom.xml файл:
+
+    <artifactId>json-schema-validator</artifactId>
+
+
+3. Проверка схемы JSON
+
+В качестве схемы JSON мы будем использовать JSON, сохраненный в файле с именем event_0.json, который присутствует
+в пути к классу:
+
+{
+    "id": "390",
+    "data": {
+        "leagueId": 35,
+        "homeTeam": "Norway",
+        "visitingTeam": "England",
+    },
+    "odds": [{
+        "price": "1.30",
+        "name": "1"
+    },
+    {
+        "price": "5.25",
+        "name": "X"
+    }]
+}
+
+
+предполагая, что это общий формат, за которым следуют все данные, возвращаемые нашим REST API,
+мы можем затем проверить ответ JSON на соответствие следующим образом:
+
+@Test
+public void givenUrl_whenJsonResponseConformsToSchema_thenCorrect() {
+    get("/events?id=390").then().assertThat()
+      .body(matchesJsonSchemaInClasspath("event_0.json"));
+}
+
+Обратите внимание, что мы по-прежнему будем статически импортировать matchesJsonSchemaInClasspath
+из io.restassured.module.jsv.JsonSchemaValidator.
+
+4. Настройки проверки схемы JSON
+4.1. Подтвердите ответ
+Модуль json-schema-validator REST-assured дает нам возможность выполнять детальную проверку,
+определяя наши собственные правила настройки.
+
+Допустим, мы хотим, чтобы при нашей проверке всегда использовалась схема JSON версии 4:
+
+@Test
+public void givenUrl_whenValidatesResponseWithInstanceSettings_thenCorrect() {
+    JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.newBuilder()
+      .setValidationConfiguration(
+        ValidationConfiguration.newBuilder()
+          .setDefaultVersion(SchemaVersion.DRAFTV4).freeze())
+            .freeze();
+    get("/events?id=390").then().assertThat()
+      .body(matchesJsonSchemaInClasspath("event_0.json")
+        .using(jsonSchemaFactory));
+}
+
+Мы бы сделали это с помощью JsonSchemaFactory и указали schemaVersion версии 4 и утверждали, что она использует
+эту схему при отправке запроса.
+
+4.2. Проверка правильности
+По умолчанию json-schema-validator выполняет проверенные проверки в строке ответа JSON. Это означает,
+что если схема определяет коэффициенты в виде массива, как в следующем JSON:
+
+{
+    "odds": [{
+        "price": "1.30",
+        "name": "1"
+    },
+    {
+        "price": "5.25",
+        "name": "X"
+    }]
+}
+
+тогда валидатор всегда будет ожидать массив в качестве значения для коэффициентов, следовательно, ответ,
+в котором коэффициенты являются строкой, не пройдет проверку. Итак, если мы хотим быть менее строгими в наших ответах,
+мы можем добавить пользовательское правило во время проверки, сначала выполнив следующий статический импорт:
+
+io.restassured.module.jsv.JsonSchemaValidatorSettings.settings;
+
+затем выполните тест, для проверки которого установлено значение false:
+
+@Test
+public void givenUrl_whenValidatesResponseWithStaticSettings_thenCorrect() {
+    get("/events?id=390").then().assertThat().body(matchesJsonSchemaInClasspath
+      ("event_0.json").using(settings().with().checkedValidation(false)));
+}
+
+
+4.3. Глобальная конфигурация проверки
+Эти настройки очень гибкие, но при большом количестве тестов нам пришлось бы определять проверку для каждого теста,
+это громоздко и не очень удобно в обслуживании.
+
+Чтобы избежать этого, у нас есть свобода определять нашу конфигурацию только один раз и позволять ей применяться
+ко всем тестам.
+
+Мы настроим проверку так, чтобы она была снята и всегда использовалась для схемы JSON версии 3:
+
+JsonSchemaFactory factory = JsonSchemaFactory.newBuilder()
+  .setValidationConfiguration(
+   ValidationConfiguration.newBuilder()
+    .setDefaultVersion(SchemaVersion.DRAFTV3)
+      .freeze()).freeze();
+JsonSchemaValidator.settings = settings()
+  .with().jsonSchemaFactory(factory)
+      .and().with().checkedValidation(false);
+
+затем, чтобы удалить эту конфигурацию, вызовите метод reset:
+
+JsonSchemaValidator.reset();
+
+5. Заключение
+В этой статье мы показали, как мы можем проверить ответ JSON на соответствие схеме при использовании REST-assured.

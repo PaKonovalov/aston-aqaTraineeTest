@@ -1,0 +1,47 @@
+Comparator<Dto> myComparator = Comparator.comparing(Dto::getName)
+    .thenComparing(Dto::Number)
+    .thenComparing(Dto::Other);
+
+или использовать иф условия
+
+     public class MyComparator implements Comparator<Dto> {
+         @Override
+         public int compare(final Dto address1, final Dto address2) {
+             if (address1 == null && address2 == null) {
+                 return 0;
+             }
+             if (address1 == null && address2 != null) {
+                 return -1;
+             }
+             if (address1 != null && address2 == null) {
+                 return 1;
+             }
+
+             // here we know that both address1 and address2 are not null
+             int result = 0;
+             final String name1 = address1.getName();
+             final String name2 = address2.getName();
+
+             if (name1 == null && name2 == null) {
+                 result = 0;
+             } else if (name1 == null && name2 != null) {
+                 result = -1;
+             } else if (name1 != null && name2 == null) {
+                 result = 1;
+             }
+             else {
+                 result = name1.compareTo(name2);
+             }
+
+             //if the Names are the same then compare the Number
+             if (result == 0) {
+                 if (address1.Number() < address2.Number()) {
+                     result = -1;
+                 } else if (address1.Number() > address2.Number()) {
+                     result = 1;
+                 } else {
+                     result = 0;
+                 }
+
+             return result;
+     }

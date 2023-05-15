@@ -1,0 +1,6 @@
+https://tproger.ru/articles/pishem-java-veb-prilozhenie-na-sovremennom-steke-s-nulja-do-mikroservisnoj-arhitektury-chast-2/
+
+через библиотеки
+implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
+implementation 'com.auth0:java-jwt:3.18.2'
+

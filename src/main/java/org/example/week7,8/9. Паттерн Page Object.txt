@@ -1,0 +1,76 @@
+Page Object — шаблон проектирования
+
+Цель: изолировать код, который часто меняется, от кода, который меняется по-другому или не меняется вообще.
+
+помогает инкапсулировать работу с отдельными элементами страницы, что позволяет уменьшить количество кода и
+упростить его поддержку
+
+Основные преимущества:
+    - Разделение кода тестов и описания страниц
+    - Объединение всех действий по работе с веб-странией в одном месте
+
+Пример:
+
+    public class LoginPage {
+        By usernameLocator = By.id("username");
+        By passwordLocator = By.id("passwd");
+        By loginButtonLocator = By.id("login");
+
+        private final WebDriver driver;
+
+        public LoginPage(WebDriver driver) {
+            this.driver = driver;
+
+            if (!"Login".equals(driver.getTitle())) {
+                throw new IllegalStateException("This is not the login page");
+            }
+        }
+
+        public LoginPage typeUsername(String username) {
+            driver.findElement(usernameLocator).sendKeys(username);
+            return this;
+        }
+
+        public LoginPage typePassword(String password) {
+            driver.findElement(passwordLocator).sendKeys(password);
+            return this;
+        }
+
+        public HomePage submitLogin() {
+            driver.findElement(loginButtonLocator).submit();
+            return new HomePage(driver);
+        }
+
+        public LoginPage submitLoginExpectingFailure() {
+            driver.findElement(loginButtonLocator).submit();
+            return new LoginPage(driver);
+        }
+
+        public HomePage loginAs(String username, String password) {
+            typeUsername(username);
+            typePassword(password);
+            return submitLogin();
+        }
+
+Пример Page Factory:
+
+    public class GoogleSearchPage {
+        private WebElement q;
+
+        public void searchFor(String text) {
+            q.sendKeys(text);
+            q.submit();
+        }
+    }
+
+    public class UsingGoogleSearchPage {
+        public static void main(String[] args) {
+            WebDriver driver = new HtmlUnitDriver();
+
+            driver.get("http://www.google.com/");
+
+            GoogleSearchPage page = PageFactory.initElements(driver, GoogleSearchPage.class);
+
+            page.searchFor("Cheese");
+        }
+    }

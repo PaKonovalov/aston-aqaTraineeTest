@@ -1,0 +1,36 @@
+https://go.skillbox.ru/profession/paket-java-developer/java-s-nulya/a9e76860-48bf-47bc-a9da-ce2124f2d336/videolesson
+
+При создании приложений мы часто сталкиваемся с ошибками, которые необходимо отлаживать. с помощью логов мы можем
+легко получить информацию о том, что происходит в приложении, с записью ошибок и необычных обстоятельств
+
+Логгеры (Logger) в Java – это объекты, которые запускают события журнала. Они создаются и вызываются в коде
+приложения, где генерируют события журнала перед передачей их следующему компоненту, который является Appender.
+
+Пакет org.apache.log4j.* предоставляет следующие уровни в порядке убывания:
+
+    FATAL;
+    ERROR;
+    WARN;
+    INFO;
+    DEBUG.
+
+Пакет java.util.logging предоставляет следующие уровни в порядке убывания:
+
+    SEVERE(HIGHEST LEVEL);
+    WARNING;
+    INFO;
+    CONFIG;
+    FINE;
+    FINER;
+    FINEST(LOWEST LEVEL).
+    ALL
+    OFF
+
+Инструменты для логирования в Java:
+
+    log4j
+    JUL — java.util.logging
+    JCL — jakarta commons logging
+    Logback
+    SLF4J — simple logging facade for java
+

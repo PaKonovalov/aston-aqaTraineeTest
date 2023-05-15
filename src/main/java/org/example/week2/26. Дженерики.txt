@@ -1,0 +1,18 @@
+Дженерики (обобщения) — это средства языка Java для реализации обобщённого программирования: особого
+подхода к описанию данных и алгоритмов, позволяющего работать с различными типами данных без изменения их
+описания.
+
+более сильная проверка типов во время компиляции и устранение необходимости явного приведения.
+
+Пример:
+    public static <T> List<T> doRequestGetList(RequestSpecification specification,
+                                               int httpStatusCode,
+                                               Class<T[]> clazz) {
+            return List.of(given()
+                    .spec(specification)
+                    .when()
+                    .get()
+                    .then().statusCode(httpStatusCode)
+                    .extract().body()
+                    .as(clazz));
+        }

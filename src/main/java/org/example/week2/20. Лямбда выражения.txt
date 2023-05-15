@@ -1,0 +1,24 @@
+Лямбда-выражение — упрощённая запись анонимного класса, реализующего функциональный интерфейс
+
+Функциональный интерфейс в Java — интерфейс, в котором объявлен только один абстрактный метод
+
+на примере comparator:
+
+    Comparator<User> byNameComparator = new Comparator<User>() {
+
+      @Override
+      public int compare(User u1, User u2) {
+        return u1.firstName().compareTo(u2.firstName());
+      }
+    };
+
+тоже но с использованием лямбда:
+
+    - Как анонимный метод:
+    Comparator<User> firstNameComparator = (User u1, User u2) -> u1.firstName().compareTo(u2.firstName());
+
+    - Без определений типов:
+    Comparator<User> firstNameComparator = (u1, u2) -> u1.firstName().compareTo(u2.firstName());
+
+    - Со ссылками на методы:
+    Comparator<User> firstNameComparator = Comparator.comparing(User::firstName);

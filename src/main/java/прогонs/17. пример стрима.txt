@@ -1,0 +1,17 @@
+List<User> userList = new ArrayList<>(Arrays.asList(
+ new User("John", 33),
+ new User("Robert", 26),
+ new User("Mark", 26),
+ new User("Brandon", 42)));
+
+
+ List<User> sortedList = userList.stream()
+ .sorted(Comparator.comparingInt(User::getAge))
+ .collect(Collectors.toList());
+
+ sortedList.forEach(System.out::println);
+
+
+ пожалуйста
+ https://git.astondevs.ru/aston/a-bank/bankig-retrofit-autotests/-/merge_requests/153/diffs
+ https://vmmreg32.testrail.net/index.php?/cases/view/6363104
